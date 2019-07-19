@@ -29,16 +29,24 @@ app.get('/', function (req, res, next) {
 var aWss = expressWs.getWss('/');
 
 // WebSocket Routes and Handlers
-app.ws('/', function(ws, req) {
-  console.log(`Socket Connected on ${port}`);
+app.ws('/', function (ws, req) {
+    console.log(`Socket Connected on ${port}`);
 
-  // receive message, translate, and emit to all connected clients
-  ws.onmessage = function(msg) {
-    console.log(msg.data);
-    aWss.clients.forEach(function (client) {
-      client.send(msg.data);
-    });
-  };
+    // receive message, translate, and emit to all connected clients
+    ws.onmessage = function (msg) {
+        console.log(msg.data);
+
+        // ----- Google API ----- //
+        // Place API call here.  
+        // Use data.msg for the text 
+        // Use data.target for langauge ('es' is hardcoded)
+        // ---------------------- //
+
+        // iterate over clients/connected sockets to broadcast message
+        aWss.clients.forEach(function (client) {
+            client.send(msg.data);
+        });
+    };
 });
 
 app.listen(port);

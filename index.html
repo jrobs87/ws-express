@@ -103,9 +103,12 @@
                     alert('No Message!')
                 } else {
                     ws.send(JSON.stringify({
+                        user: 'john',
                         msg: msg,
+                        native: 'en',
                         target: 'es'
                     }));
+                    // log and clear input
                     console.log('Message sent!')
                     $('#client').val('')
                 }
