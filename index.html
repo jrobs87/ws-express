@@ -8,12 +8,12 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-    <title>Document</title>
+    <title>iMMersio Chat</title>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a class="navbar-brand" href="#">Navbar</a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">iMMersio</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
             aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -36,37 +36,42 @@
         </div>
     </nav>
 
-    <div class="container">
+    <div class="container-fluid" style="margin-top: 3em">
         <div class="row">
             <div class="col">
-                <h1>Happy Chats!</h1>
+                <h3>Chat</h3>
             </div>
         </div>
     </div>
 
     <br>
 
-    <div class="container">
-        <div class="row">
-            <div class="col">
-                <form>
-                    <input type="text" id="client" placeholder="Enter your message...">
-                </form>
-                <br>
-                <button id="send">Send</button>
-            </div>
-        </div>
-    </div>
+
 
     <br>
 
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <div class="col">
                 <ul id="convo" style="list-style: none"></ul>
             </div>
         </div>
     </div>
+
+    <div class="footer" style="position: absolute; bottom: 1em">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col">
+                    <form>
+                        <input type="text" id="client" placeholder="Enter your message...">
+                    </form>
+                    <br>
+                    <button id="send">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
         integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
@@ -80,38 +85,63 @@
 
     <script>
         $(document).ready(() => {
-            var ws = new WebSocket('ws://localhost:3000');
+            user = 'John Robertson'
+            var ws = new WebSocket('ws://localhost:3000/' + user);
 
             // event emmited when connected
             ws.onopen = function () {
-                console.log('Connected to WebSocket! Happy chats!')
+                client = {
+                    name: 'John Robertson',
+                    id: 23083
+                };
+                // ws.send(JSON.stringify(client));
+                console.log('Connected to WebSocket! Happy chats!');
             }
 
             // event emmited when receiving message 
             ws.onmessage = function (ev) {
                 console.log(ev.data);
-                text = JSON.parse(ev.data)
+
+                text = JSON.parse(ev.data);
+
                 let message = $('<li>');
-                message.text(text.msg)
+
+                $(message).attr('class','testClass' );
+                message.text(`${text.userName}: ${text.msg}`);
+                
                 $('#convo').append(message);
             }
 
-            // Send Message handler
-            $('#send').on('click', () => {
+            // Define the message relay event handler
+            function messageRelay() {
                 msg = $('#client').val();
                 if (msg === '') {
-                    alert('No Message!')
+                    alert('No Message!');
                 } else {
                     ws.send(JSON.stringify({
-                        user: 'john',
-                        msg: msg,
+                        userName: 'John',
+                        userID: 220221,
                         native: 'en',
-                        target: 'es'
+                        target: 'es',
+                        msg: msg
                     }));
                     // log and clear input
-                    console.log('Message sent!')
-                    $('#client').val('')
-                }
+                    console.log('Message sent!');
+                    $('#client').val('');
+                };
+            };
+
+            // Send message handler on 'Enter' keypress
+            $('input[type=text]').on('keydown', function (e) {
+                if (e.which == 13) {
+                    e.preventDefault();
+                    messageRelay();
+                };
+            });
+
+            // Send Message handler on Click Send Button
+            $('#send').on('click', () => {
+                messageRelay();
             })
         })
     </script>
