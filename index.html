@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="./style.css">
     <title>iMMersio Chat</title>
 </head>
 
@@ -97,7 +98,7 @@
                 // ws.send(JSON.stringify(client));
                 console.log('Connected to WebSocket! Happy chats!');
             }
-
+            count = 0;
             // event emmited when receiving message 
             ws.onmessage = function (ev) {
                 console.log(ev.data);
@@ -106,9 +107,18 @@
 
                 let message = $('<li>');
 
-                $(message).attr('class','testClass' );
+               
+                count = count + 1;
+
+                if (count % 2 == 0) {
+                    $(message).addClass('right');
+                }
+                else {
+                    $(message).addClass('left');
+                }
+
                 message.text(`${text.userName}: ${text.msg}`);
-                
+
                 $('#convo').append(message);
             }
 

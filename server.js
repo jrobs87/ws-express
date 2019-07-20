@@ -7,11 +7,10 @@ var moment = require('moment');
 moment().format();
 
 const port = 3000;
+app.use(express.static('public'))
 
 bodyParser = require('body-parser');
-// support parsing of application/json type post data
 app.use(bodyParser.json());
-//support parsing of application/x-www-form-urlencoded post data
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // HTML - Chat (loads the chat page)
@@ -30,6 +29,7 @@ app.ws('/:user', function (ws, req) {
     ws.user = req.params.user;
     console.log(`${ws.user} has connected on Port ${port}`);
     // console.log(aWss.clients)
+    
 
     ws.on('close', req => {
         console.log('user disconnected');
@@ -53,6 +53,7 @@ app.ws('/:user', function (ws, req) {
         aWss.clients.forEach(function (client) {
             client.send(msg.data);
             thread.push(msg.data);
+            
             // console.log(thread);
             // console.log(aWss.clients)
         });
