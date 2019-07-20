@@ -40,15 +40,28 @@
     <div class="container-fluid" style="margin-top: 3em">
         <div class="row">
             <div class="col">
-                <h3>Chat</h3>
+                <h3>Chat <span id="lang"></span></h3>
             </div>
         </div>
     </div>
-
-    <br>
-
-
-
+<br>
+    <form>
+        <div class="container-fluid">
+        <div class="row">
+            <div class="col">
+                <input type="text" id="Name" class="form-control" placeholder="First name">
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <div class="col">
+                    <button id="es" class="connect" data-target-lang="es">Spanish</button>
+                    <button id="fr" class="connect" data-target-lang="fr">French</button>
+                    <button id="ru" class="connect" data-target-lang="ru">Russian</button>
+            </div>
+        </div>
+    </div>
+    </form>
     <br>
 
     <div class="container-fluid">
@@ -86,14 +99,25 @@
 
     <script>
         $(document).ready(() => {
-            user = 'John Robertson'
-            var ws = new WebSocket('ws://localhost:3000/' + user);
+
+            $('.connect').on('click', function() {
+                event.preventDefault();
+                user = $('#Name').val();
+                target = $(this).attr('data-target-lang');
+                console.log(`${user} is connected with target language: ${target}`);
+                $('#lang').text(`- ${target}`);
+         
+
+            // user = 'John Robertson';
+            // target = 'es';
+            var ws = new WebSocket('ws://localhost:3000/' + user + '/' + target);
 
             // event emmited when connected
             ws.onopen = function () {
                 client = {
                     name: 'John Robertson',
-                    id: 23083
+                    id: 23083,
+                    target: 'es'
                 };
                 // ws.send(JSON.stringify(client));
                 console.log('Connected to WebSocket! Happy chats!');
@@ -101,13 +125,11 @@
             count = 0;
             // event emmited when receiving message 
             ws.onmessage = function (ev) {
-                console.log(ev.data);
-
+                console.log(ev.data)
                 text = JSON.parse(ev.data);
 
                 let message = $('<li>');
 
-               
                 count = count + 1;
 
                 if (count % 2 == 0) {
@@ -117,7 +139,7 @@
                     $(message).addClass('left');
                 }
 
-                message.text(`${text.userName}: ${text.msg}`);
+                message.text(`${text.userName}: ${text.trans}`);
 
                 $('#convo').append(message);
             }
@@ -154,6 +176,7 @@
                 messageRelay();
             })
         })
+    })
     </script>
 </body>
 

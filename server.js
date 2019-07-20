@@ -4,6 +4,9 @@ var expressWs = expressWs(express());
 var app = expressWs.app;
 const path = require('path');
 var moment = require('moment');
+
+require('dotenv').config()
+
 moment().format();
 
 const port = 3000;
@@ -15,49 +18,72 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // HTML - Chat (loads the chat page)
 app.get('/', function (req, res, next) {
-    console.log('Index.html sent to Client')
+    console.log('App sent to Client')
     res.sendFile(path.join(__dirname, './index.html'));
 });
 
 //Secure WebSocket Instance
 var aWss = expressWs.getWss('/');
 
-const thread = [];
-
 // WebSocket Routes and Handlers (on connection)
-app.ws('/:user', function (ws, req) {
+app.ws('/:user/:target', function (ws, req) {
     ws.user = req.params.user;
-    console.log(`${ws.user} has connected on Port ${port}`);
+    ws.target = req.params.target;
+    // target = req.params.targetLanguage;
+    console.log(`${ws.user} has connected on Port ${port} using target language '${ws.target}'`);
     // console.log(aWss.clients)
-    
-
-    ws.on('close', req => {
-        console.log('user disconnected');
-        console.log(req)
-    });
 
     // receive message, translate, and emit to all connected clients
     ws.onmessage = function (msg) {
         // we have to parse json manually bc bodyParser() only works on req.bdoy, which is not available to ws
-        message = JSON.parse(msg.data)
-        console.log(`${message.userName} (${message.userID}): "${message.msg}"`)
+        msg = JSON.parse(msg.data)
+        console.log(`${msg.userName} (${msg.userID}): "${msg.msg}"`)
 
-        // ----- Google API ----- //
-        // Place API call here.  
-        // Use data.msg for the text 
-        // Use data.target for langauge ('es' is hardcoded)
-        // ---------------------- //
-        msg.id = 'id';
+        // testing 
+        aWss.clients.forEach(client => {
+            console.log(client.user)
+            // ----- Begin Google API ----- //
+            async function main(
+             projectId = process.env.GOOGLE_CLOUD_PROJECT_ID
+         
+         ) {
+             // [START translate_quickstart]
+             // Imports the Google Cloud client library
+             const { Translate } = require('@google-cloud/translate');
+         
+             // Instantiates a client
+             const translate = new Translate({ projectId });
+         
+             // The text to translate
+             const text = msg.msg;
+         
+             // The target language
+             const target = client.target;
+         
+             // Translates text into target language
+             const [translation] = await translate.translate(text, target);
+             console.log(`Text: ${text}`);
+             console.log(`Translation: ${translation}`);
+         
+             msg.trans = translation;
+         
+             // iterate over clients/connected sockets to broadcast message
+                 client.send(JSON.stringify(msg));
+                 // thread.push(msg.data);
+         }
+         
+         const args = process.argv.slice(2);
+         main(...args).catch(console.error);
+         });
+          // ----- End Google API ----- //
+ 
+        console.log(`Sending: ${msg.msg}`)
 
-        // iterate over clients/connected sockets to broadcast message
-        aWss.clients.forEach(function (client) {
-            client.send(msg.data);
-            thread.push(msg.data);
-            
-            // console.log(thread);
-            // console.log(aWss.clients)
+        ws.on('close', req => {
+            console.log(`Staus code: ${req} - user disconnected`)
         });
     };
 });
 
 app.listen(port);
+console.log(`iMMersio listening on Port ${port}`)
