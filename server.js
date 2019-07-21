@@ -18,7 +18,6 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // HTML - Chat (loads the chat page)
 app.get('/', function (req, res, next) {
-    console.log('App sent to Client')
     res.sendFile(path.join(__dirname, './index.html'));
 });
 
@@ -29,19 +28,28 @@ var aWss = expressWs.getWss('/');
 app.ws('/:user/:target', function (ws, req) {
     ws.user = req.params.user;
     ws.target = req.params.target;
-    // target = req.params.targetLanguage;
+    ws.native = '';
+
+    function logUsers() {
+        let users = [];
+        aWss.clients.forEach((client) => {
+            users.push(` ${client.user}`);
+        });
+        console.log(`Users in Chat: ${users}`);
+        users = [];
+    };
+
     console.log(`${ws.user} has connected on Port ${port} using target language '${ws.target}'`);
-    // console.log(aWss.clients)
 
     // receive message, translate, and emit to all connected clients
     ws.onmessage = function (msg) {
         // we have to parse json manually bc bodyParser() only works on req.bdoy, which is not available to ws
-        msg = JSON.parse(msg.data)
-        console.log(`${msg.userName} (${msg.userID}): "${msg.msg}"`)
+        msg = JSON.parse(msg.data);
+        console.log(`${msg.userName} (${msg.userID}): "${msg.msg}"`);
 
         // testing 
         aWss.clients.forEach(client => {
-            console.log(client.user)
+          
             // ----- Begin Google API ----- //
             async function main(
              projectId = process.env.GOOGLE_CLOUD_PROJECT_ID
@@ -62,27 +70,25 @@ app.ws('/:user/:target', function (ws, req) {
          
              // Translates text into target language
              const [translation] = await translate.translate(text, target);
-             console.log(`Text: ${text}`);
-             console.log(`Translation: ${translation}`);
          
              msg.trans = translation;
          
              // iterate over clients/connected sockets to broadcast message
                  client.send(JSON.stringify(msg));
-                 // thread.push(msg.data);
          }
          
          const args = process.argv.slice(2);
          main(...args).catch(console.error);
          });
           // ----- End Google API ----- //
- 
-        console.log(`Sending: ${msg.msg}`)
 
         ws.on('close', req => {
-            console.log(`Staus code: ${req} - user disconnected`)
+            console.log(`Staus code: ${req} - user disconnected`);
+            logUsers();
         });
     };
+
+    logUsers();
 });
 
 app.listen(port);
