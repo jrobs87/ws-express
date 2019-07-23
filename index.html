@@ -8,7 +8,7 @@
 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
         integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
-        <link href="https://fonts.googleapis.com/css?family=Hind:300&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Hind:300&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="./style.css">
     <title>iMMersio Chat</title>
@@ -30,13 +30,14 @@
                     <a class="nav-link" href="https://github.com/jrobs87/ws-express" target="_blank">GiHub</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="https://john-robertson-portfolio.herokuapp.com/" target="_blank">Portfolio</a>
+                    <a class="nav-link" href="https://john-robertson-portfolio.herokuapp.com/"
+                        target="_blank">Portfolio</a>
                 </li>
             </ul>
         </div>
     </nav>
 
-    <div class="container-fluid" id="user" >
+    <div class="container-fluid" id="user">
         <div class="row">
             <div class="col">
                 <h5 span id="lang">User (Language)</h5>
@@ -101,6 +102,7 @@
     <script>
         $(document).ready(() => {
 
+            // user object for dB
             user = {
                 name: '',
                 native: '',
@@ -111,6 +113,7 @@
                 chats: [],
             }
 
+            // language buttons act as connection caller + validation
             $('.connect').on('click', function () {
                 if ($('#Name').val() === "") {
                     alert('Name required to intiate chat.');
@@ -119,28 +122,31 @@
                     event.preventDefault();
                     user = $('#Name').val();
                     target = $(this).attr('data-target-lang');
+
                     console.log(`${user} is connected with target language: ${target}`);
+
                     $('#lang').text(`${user} (${target})`);
                     $('#language-buttons').css('display', 'none');
                     $('.footer').css('display', 'block');
                 }
 
+                // new WebSockets instance
                 var ws = new WebSocket('ws://localhost:3000/' + user + '/' + target);
 
                 // event emmited when connected
                 ws.onopen = function () {
                     console.log('Connected to WebSocket! Happy chats!');
                 }
-                count = 0;
+
                 // event emmited when receiving message 
                 ws.onmessage = function (ev) {
-                    console.log(ev.data)
+                    console.log(ev.data);
+
                     text = JSON.parse(ev.data);
 
                     let message = $('<li>');
 
-                    count = count + 1;
-
+                    // placing messages left and right depending sender
                     if (text.userName !== user) {
                         $(message).addClass('left');
                     }
@@ -149,7 +155,6 @@
                     }
 
                     message.text(`(${text.userName}) > ${text.trans}`);
-
                     $('#convo').append(message);
                 }
 
@@ -166,6 +171,7 @@
                             target: 'es',
                             msg: msg
                         }));
+
                         // log and clear input
                         console.log('Message sent!');
                         $('#client').val('');
