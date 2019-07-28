@@ -131,7 +131,8 @@
                 }
 
                 // new WebSockets instance
-                var ws = new WebSocket('ws://localhost:3000/' + user + '/' + target);
+                // var ws = new WebSocket('ws://localhost:3000/' + user + '/' + target);
+                var ws = new WebSocket('ws://' + process.env.PORT + "/" + user + '/' + target);
 
                 // event emmited when connected
                 ws.onopen = function () {
