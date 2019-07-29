@@ -1,10 +1,13 @@
 {
   "name": "ws-express",
   "version": "1.0.0",
+  "engines": {
+    "node": "11.14.0"
+  },
   "description": "",
   "main": "index.js",
   "scripts": {
-    "preinstall" : "node gcpSetup.js",
+    "preinstall": "node gcpSetup.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
@@ -16,14 +19,5 @@
     "express-ws": "^4.0.0",
     "moment": "^2.24.0",
     "ws": "^7.1.0"
-  },
-  "engines":
-  {
-    "name": "ws-express",
-    "description": "a really cool ws-express app",
-    "version": "0.0.1",
-    "engines": {
-      "node": "11.14.0"
-    }
   }
 }
