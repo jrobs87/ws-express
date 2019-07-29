@@ -130,9 +130,13 @@
                     $('.footer').css('display', 'block');
                 }
 
+               const PORT = process.env.PORT || "localhost:3000/"
+
                 // new WebSockets instance
                 // var ws = new WebSocket('ws://localhost:3000/' + user + '/' + target);
-                var ws = new WebSocket('ws://' + process.env.PORT + "/" + user + '/' + target);
+                var ws = new WebSocket('ws://' + PORT + "/" + user + '/' + target);
+
+                console.log(PORT);
 
                 // event emmited when connected
                 ws.onopen = function () {
